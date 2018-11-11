@@ -9,8 +9,11 @@ import argparse
 import numpy as np
 
 import models
+from models.audiounet import AudioUNet
 from models.model import default_opt
 from models.io import load_h5, upsample_wav
+import wandb
+
 
 # ----------------------------------------------------------------------------
 
@@ -60,6 +63,9 @@ def make_parser():
 # ----------------------------------------------------------------------------
 
 def train(args):
+  wandb.init()
+  wandb.config.update(args)
+  
   # get data
   X_train, Y_train = load_h5(args.train)
   X_val, Y_val = load_h5(args.val)
@@ -84,10 +90,10 @@ def eval(args):
     with open(args.wav_file_list) as f:
       for line in f:
         try:
-          print line.strip()
+          print(line.strip())
           upsample_wav(line.strip(), args, model)
         except EOFError:
-          print 'WARNING: Error reading file:', line.strip()
+          print('WARNING: Error reading file:', line.strip())
 
 def get_model(args, n_dim, r, from_ckpt=False, train=True):
   """Create a model based on arguments"""  
